@@ -42,7 +42,7 @@
 ### 2. 连接 Vercel
 
 1. 打开 [vercel.com](https://vercel.com) → **Add New** → **Project** → 导入仓库。  
-2. **Framework Preset** 选 Next.js，构建命令保持默认 `npm run build`（已包含 `prisma migrate deploy`）。  
+2. **Framework Preset** 选 Next.js，构建命令保持默认 `npm run build`（已包含 `prisma db push`）。  
 3. 在 **Environment Variables** 中添加：
 
 | 变量名 | 说明 |
@@ -62,7 +62,7 @@
 
 ### 4. 首次部署后的数据
 
-构建阶段会执行 `prisma migrate deploy` 建表。创建管理员与示例数据：在本地把 `.env` 的 `DATABASE_URL` 临时改为 **与 Vercel 相同的 Neon 连接串**，然后执行：
+构建阶段会执行 `prisma db push` 建表。创建管理员与示例数据：在本地把 `.env` 的 `DATABASE_URL` 临时改为 **与 Vercel 相同的 Neon 连接串**，然后执行：
 
 ```bash
 npm run db:seed
@@ -81,7 +81,7 @@ npm run db:seed
 | 命令 | 说明 |
 |------|------|
 | `npm run dev` | 开发服务器 |
-| `npm run build` | 生产构建（含 `migrate deploy`，需有效 `DATABASE_URL`） |
+| `npm run build` | 生产构建（含 `db push`，需有效 `DATABASE_URL`） |
 | `npm run build:local` | 仅 generate + next build，不执行迁移 |
 | `npm run docker:up` | 启动 Docker 中的 Postgres |
 | `npm run db:setup` | `migrate deploy` + `db:seed` |
