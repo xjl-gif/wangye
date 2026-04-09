@@ -4,6 +4,23 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+function normalizeAuthError(error?: string | null) {
+  if (!error) return "登录失败，请稍后重试";
+  const lower = error.toLowerCase();
+  if (
+    lower.includes("credentials") ||
+    lower.includes("credentialssignin") ||
+    lower.includes("callbackrouteerror") ||
+    lower.includes("accessdenied")
+  ) {
+    return "邮箱或密码错误";
+  }
+  if (lower.includes("bad request")) {
+    return "请求无效，请刷新页面后重试";
+  }
+  return `登录失败：${error}`;
+}
+
 export function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -14,20 +31,39 @@ export function LoginForm() {
     setError(null);
     setPending(true);
     const fd = new FormData(e.currentTarget);
-    const email = String(fd.get("email") ?? "");
+    const email = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    setPending(false);
-    if (res?.error) {
-      setError("邮箱或密码错误");
-      return;
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      setPending(false);
+
+      if (!res) {
+        setError("登录失败：服务器未返回结果");
+        return;
+      }
+
+      if (res.error) {
+        setError(normalizeAuthError(res.error));
+        return;
+      }
+
+      if (res.ok) {
+        router.push("/admin/heritage");
+        router.refresh();
+        return;
+      }
+
+      setError("登录失败，请重试");
+    } catch (err) {
+      setPending(false);
+      setError(err instanceof Error ? `登录失败：${err.message}` : "登录失败，请稍后重试");
     }
-    router.push("/admin/heritage");
-    router.refresh();
   }
 
   return (
