@@ -13,18 +13,19 @@ export function SubmitForm() {
     const fd = new FormData(e.currentTarget);
     try {
       const r = await fetch("/api/submit", { method: "POST", body: fd });
-      const data = (await r.json()) as { ok?: boolean; error?: string };
+      const text = await r.text();
+      const data = text ? (JSON.parse(text) as { ok?: boolean; error?: string }) : {};
       if (!r.ok) {
         setStatus("err");
-        setMessage(data.error ?? "提交失败");
+        setMessage(data.error ?? `提交失败（${r.status}）`);
         return;
       }
       setStatus("ok");
       setMessage("提交成功，请等待管理员审核。");
       e.currentTarget.reset();
-    } catch {
+    } catch (error) {
       setStatus("err");
-      setMessage("网络错误，请稍后重试");
+      setMessage(error instanceof Error ? `提交失败：${error.message}` : "网络错误，请稍后重试");
     }
   }
 
