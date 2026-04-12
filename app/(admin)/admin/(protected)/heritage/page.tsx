@@ -73,13 +73,7 @@ export default async function AdminHeritageListPage() {
                       </Link>
                       <form action={deleteHeritageItemAction}>
                         <input type="hidden" name="id" value={item.id} />
-                        <button
-                          type="submit"
-                          className="text-red-700 hover:underline"
-                          onClick={(e) => {
-                            if (!confirm("确定删除该条目？")) e.preventDefault();
-                          }}
-                        >
+                        <button type="submit" className="text-red-700 hover:underline">
                           删除
                         </button>
                       </form>
