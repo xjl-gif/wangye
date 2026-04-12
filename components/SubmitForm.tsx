@@ -8,21 +8,25 @@ export function SubmitForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setStatus("loading");
     setMessage(null);
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
+
     try {
       const r = await fetch("/api/submit", { method: "POST", body: fd });
       const text = await r.text();
       const data = text ? (JSON.parse(text) as { ok?: boolean; error?: string }) : {};
+
       if (!r.ok) {
         setStatus("err");
         setMessage(data.error ?? `提交失败（${r.status}）`);
         return;
       }
+
       setStatus("ok");
       setMessage("提交成功，请等待管理员审核。");
-      e.currentTarget.reset();
+      form.reset();
     } catch (error) {
       setStatus("err");
       setMessage(error instanceof Error ? `提交失败：${error.message}` : "网络错误，请稍后重试");
